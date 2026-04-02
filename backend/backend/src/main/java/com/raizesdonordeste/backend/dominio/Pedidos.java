@@ -17,9 +17,10 @@ public class Pedidos {
             GenerationType.IDENTITY)
     private long id;
 
-    //arquivar ID do cliente
+    //Salva o nome em vez de um numero (ex: WEB)
+    @Enumerated(EnumType.STRING)
     @Column(name = "canal_pedido", nullable=false)
-    private String canalPedido;
+    private Canal_Pedidos canalPedido;
 
     //aguardo de pagamentos, em preparo, pronto
     @Column (nullable = false)
