@@ -1,5 +1,6 @@
 package com.raizesdonordeste.backend.dominio;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -34,6 +35,7 @@ public class Pedidos {
 
     //relação de itens no pedido
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL )
+    @JsonManagedReference
     private List <itemPedido> itens;
 
 }

@@ -1,5 +1,7 @@
 package com.raizesdonordeste.backend.servico;
-
+import com.raizesdonordeste.backend.api.DTO.ItemPedidoRequestDTO;
+import com.raizesdonordeste.backend.api.DTO.PedidoRequestDTO;
+import com.raizesdonordeste.backend.dominio.Canal_Pedidos;
 import com.raizesdonordeste.backend.dominio.Pedidos;
 import com.raizesdonordeste.backend.dominio.Produto;
 import com.raizesdonordeste.backend.dominio.itemPedido;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -20,41 +24,85 @@ public class PedidoServico {
     @Autowired
     private Produto_repositorio produtoRepo;
 
-    public Pedidos criarNovoPedido(Pedidos pedidos){
 
-        //criação e definição de data automatica
-        pedidos.setDataCriacao(LocalDateTime.now());
+    //public de criação dos pedidos
+    public Pedidos criarNovoPedido(PedidoRequestDTO dto) { // Alterado para receber o DTO
 
-        //todos os pedidos começam em "pagamento em aguardo"
-        pedidos.setStatus("Pagamento_em_Aguardo");
+        // cria a instancia da entidade
+        Pedidos novoPedido = new Pedidos();
+
+        // definidos dados do DTO
+        novoPedido.setDataCriacao(LocalDateTime.now());
+        novoPedido.setStatus("Pagamento_em_Aguardo");
+        novoPedido.setCanalPedido(Canal_Pedidos.valueOf(dto.canalPedido()));
 
         BigDecimal totalPedido = BigDecimal.ZERO;
+        List<itemPedido> itensReais = new ArrayList<>();
 
-        //calcular o valor total inicial como zero
-        BigDecimal total = BigDecimal.ZERO;
-        if ( pedidos.getItens() != null){
-            for (itemPedido item : pedidos.getItens()){
 
-                //faz a busca do produto no banco de dados utilziando o ID
-                Produto produtoReal = produtoRepo.findById(item.getProduto().getId())
+        if (dto.itens() != null) {
+            for (ItemPedidoRequestDTO itemDto : dto.itens()) {
+
+
+                Produto produtoReal = produtoRepo.findById(itemDto.produtoID())
                         .orElseThrow(() -> new RuntimeException("produto não encontrado"));
 
-                //atualiza o item com o produto real
-                item.setProduto(produtoReal);
-                item.setPedido(pedidos); //linka o item a capa do pedido
 
-                //Calcula o subtotal do pedido (Preço real * quantidade)
+                itemPedido item = new itemPedido();
+                item.setProduto(produtoReal);
+                item.setPedido(novoPedido);
+                item.setQuantidade(itemDto.quantidade());
+
+
                 BigDecimal quantidade = new BigDecimal(item.getQuantidade());
                 BigDecimal subtotalItem = produtoReal.getPreco().multiply(quantidade);
 
                 totalPedido = totalPedido.add(subtotalItem);
+                itensReais.add(item);
             }
         }
 
-        //valor total dos itens e preço
-        pedidos.setValorTotal(totalPedido);
+        novoPedido.setItens(itensReais);
+        novoPedido.setValorTotal(totalPedido);
 
-        //salva o pedido no bancod e dados utilizando o repositorio
+        return pedidoRepo.save(novoPedido);
+    }
+
+
+
+    //public de atualização do status do pedido
+    public Pedidos atualizarStatus(Long id, String atualizado) {
+        Pedidos pedidos = pedidoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        // impede a mudança em pedidos ja finalizados
+        if (pedidos.getStatus().equals("ENTREGUE") || pedidos.getStatus().equals("CANCELADO")) {
+            throw new IllegalStateException("alteração não é possivel em um pedido ja finalizado");
+        }
+
+        pedidos.setStatus(atualizado);
+
+        System.out.println("log: Pedido" + id + "alterado para" + atualizado + "em" + java.time.LocalDateTime.now());
+
         return pedidoRepo.save(pedidos);
     }
+
+
+
+    //public que simula o sistema de pagamento com 10% de chance de falha
+    public Pedidos processarPagamento (Long id){
+        Pedidos pedidos = pedidoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        boolean aprovado = Math.random() > 0.1;
+
+        if (aprovado) {
+            pedidos.setStatus("Pago");
+
+        }else{
+            pedidos.setStatus("pagamento recusado");
+        }
+        return pedidoRepo.save(pedidos);
+    }
+
 }
