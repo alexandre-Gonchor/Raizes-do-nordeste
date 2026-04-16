@@ -1,12 +1,7 @@
 package com.raizesdonordeste.backend;
 
-import com.raizesdonordeste.backend.dominio.Produto;
-import com.raizesdonordeste.backend.infra.Produto_repositorio;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import java.math.BigDecimal;
 
 @SpringBootApplication
 public class BackendApplication {

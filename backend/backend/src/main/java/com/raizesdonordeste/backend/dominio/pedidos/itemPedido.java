@@ -1,10 +1,8 @@
-package com.raizesdonordeste.backend.dominio;
+package com.raizesdonordeste.backend.dominio.pedidos;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Generated;
-import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Table(name = "itens_pedido")

@@ -1,6 +1,7 @@
-package com.raizesdonordeste.backend.dominio;
+package com.raizesdonordeste.backend.dominio.pedidos;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;

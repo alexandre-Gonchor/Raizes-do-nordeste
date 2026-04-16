@@ -1,10 +1,10 @@
 package com.raizesdonordeste.backend.servico;
-import com.raizesdonordeste.backend.api.DTO.ItemPedidoRequestDTO;
-import com.raizesdonordeste.backend.api.DTO.PedidoRequestDTO;
-import com.raizesdonordeste.backend.dominio.Canal_Pedidos;
-import com.raizesdonordeste.backend.dominio.Pedidos;
-import com.raizesdonordeste.backend.dominio.Produto;
-import com.raizesdonordeste.backend.dominio.itemPedido;
+import com.raizesdonordeste.backend.api.DTO.pedidos.ItemPedidoRequestDTO;
+import com.raizesdonordeste.backend.api.DTO.pedidos.PedidoRequestDTO;
+import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
+import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
+import com.raizesdonordeste.backend.dominio.pedidos.Produto;
+import com.raizesdonordeste.backend.dominio.pedidos.itemPedido;
 import com.raizesdonordeste.backend.infra.Pedido_Repositorio;
 import com.raizesdonordeste.backend.infra.Produto_repositorio;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,0 +1,93 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Raizes do nordeste
+meta:
+  id: wrk_d1461426763a41dbaabfb25548d7d4e7
+  created: 1775168111263
+  modified: 1775168111263
+  description: ""
+collection:
+  - url: http://localhost:8080/pedidos
+    name: Criar pedido - APP
+    meta:
+      id: req_8849b92963244a2aba8f081d9edb52d1
+      created: 1775168130171
+      modified: 1775361144328
+      isPrivate: false
+      description: ""
+      sortKey: -1775168130171
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "canalPedido": "APP",
+          "itens": [
+            {
+              "produtoID": 1,
+              "quantidade": 2
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    authentication:
+      type: none
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/pedidos/2/pagar
+    name: Sistema Pagamentos
+    meta:
+      id: req_0521271e03b449b19a769b016f6048af
+      created: 1775336583567
+      modified: 1775360577221
+      isPrivate: false
+      description: ""
+      sortKey: -1775336583567
+    method: PUT
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_47a6ca358a9ac48e222a777175f16a20683c4756
+    created: 1775168111269
+    modified: 1775168234926
+  cookies:
+    - id: a534679b-220c-460e-9700-45c0d3dce787
+      key: JSESSIONID
+      value: 183CF3EE16EF160A30B0CE6F757F4F64
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: true
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_47a6ca358a9ac48e222a777175f16a20683c4756
+    created: 1775168111265
+    modified: 1775168111265
+    isPrivate: false

@@ -1,6 +1,6 @@
-package com.raizesdonordeste.backend.api;
+package com.raizesdonordeste.backend.api.DTO.pedidos;
 
-import com.raizesdonordeste.backend.dominio.Pedidos;
+import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.servico.PedidoServico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import com.raizesdonordeste.backend.api.DTO.PedidoRequestDTO;
 
 @RestController
 @RequestMapping ("/pedidos")

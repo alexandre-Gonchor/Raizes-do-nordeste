@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.dominio;
+package com.raizesdonordeste.backend.dominio.pedidos;
 
 import jakarta.persistence.*;
 import lombok.Data;

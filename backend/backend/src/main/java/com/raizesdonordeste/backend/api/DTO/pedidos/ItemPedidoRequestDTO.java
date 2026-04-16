@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.api.DTO;
+package com.raizesdonordeste.backend.api.DTO.pedidos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

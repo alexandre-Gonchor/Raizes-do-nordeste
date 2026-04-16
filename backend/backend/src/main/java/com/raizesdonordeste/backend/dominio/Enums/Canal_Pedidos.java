@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.dominio;
+package com.raizesdonordeste.backend.dominio.Enums;
 
 public enum Canal_Pedidos {
 
