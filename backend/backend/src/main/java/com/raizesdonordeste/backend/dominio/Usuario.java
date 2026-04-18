@@ -38,11 +38,11 @@ public class Usuario implements UserDetails {
         //permissões baseadas no Cargo
         if (this.role == Cargos.ADMIN) {
             return List.of(
-                    new SimpleGrantedAuthority("CARGO_ADMIN"),
-                    new SimpleGrantedAuthority("CARGO_USER")
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_USER")
             );
         }
-        return List.of(new SimpleGrantedAuthority("CARGO_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override

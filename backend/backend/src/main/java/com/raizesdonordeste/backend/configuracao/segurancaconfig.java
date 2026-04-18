@@ -1,5 +1,6 @@
 package com.raizesdonordeste.backend.configuracao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class segurancaconfig {
 
+    @Autowired
+    private SecurityFilter securityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,13 +33,18 @@ public class segurancaconfig {
 
 
                         .requestMatchers(HttpMethod.POST, "/produtos").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/pedidos").authenticated()
+
 
 
                         .anyRequest().authenticated()
 
 
                 )
+
+                .addFilterBefore(securityFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+
                 .build();
 
     }
