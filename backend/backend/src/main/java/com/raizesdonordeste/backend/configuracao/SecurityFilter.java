@@ -1,6 +1,6 @@
 package com.raizesdonordeste.backend.configuracao;
 
-import com.raizesdonordeste.backend.infra.Usuario_repositorio;
+import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import com.raizesdonordeste.backend.servico.TokenServico;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class SecurityFilter  extends OncePerRequestFilter {
 
     @Autowired
-    private Usuario_repositorio repositorio;
+    private Usuario_Repositorio repositorio;
 
     @Autowired
     private TokenServico tokenServico;

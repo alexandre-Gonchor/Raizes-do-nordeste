@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface Cliente_repositorio extends JpaRepository<Cliente, Long> {
+public interface Cliente_Repositorio extends JpaRepository<Cliente, Long> {
 
     Iterable<Cliente> findBymarketingTrue();
 

@@ -1,6 +1,6 @@
 package com.raizesdonordeste.backend.servico;
-import com.raizesdonordeste.backend.api.DTO.pedidos.ItemPedidoRequestDTO;
-import com.raizesdonordeste.backend.api.DTO.pedidos.PedidoRequestDTO;
+import com.raizesdonordeste.backend.api.DTO.Request.ItemPedidoRequestDTO;
+import com.raizesdonordeste.backend.api.DTO.Request.PedidoRequestDTO;
 import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
 import com.raizesdonordeste.backend.dominio.Enums.TipoMovimentacao;
@@ -8,10 +8,10 @@ import com.raizesdonordeste.backend.dominio.Usuario;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.dominio.pedidos.Produto;
 import com.raizesdonordeste.backend.dominio.pedidos.itemPedido;
-import com.raizesdonordeste.backend.infra.Cliente_repositorio;
+import com.raizesdonordeste.backend.infra.Cliente_Repositorio;
 import com.raizesdonordeste.backend.infra.Pedido_Repositorio;
-import com.raizesdonordeste.backend.infra.Produto_repositorio;
-import com.raizesdonordeste.backend.infra.Usuario_repositorio;
+import com.raizesdonordeste.backend.infra.Produto_Repositorio;
+import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,10 +30,10 @@ public class PedidoServico {
     private Pedido_Repositorio pedidoRepo;
 
     @Autowired
-    private Produto_repositorio produtoRepo;
+    private Produto_Repositorio produtoRepo;
 
     @Autowired
-    private Cliente_repositorio clienteRepo;
+    private Cliente_Repositorio clienteRepo;
 
     @Autowired
     private ClienteServico clienteServico;
@@ -42,7 +42,7 @@ public class PedidoServico {
     private EstoqueServico estoqueServico;
 
     @Autowired
-    private Usuario_repositorio usuarioRepo;
+    private Usuario_Repositorio usuarioRepo;
 
     @Transactional
     public Pedidos criarNovoPedido(PedidoRequestDTO dto) {

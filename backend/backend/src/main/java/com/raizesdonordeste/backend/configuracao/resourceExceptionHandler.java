@@ -1,7 +1,6 @@
 package com.raizesdonordeste.backend.configuracao;
 
 
-import com.raizesdonordeste.backend.api.DTO.exeptions.execaopadrao;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,17 +14,17 @@ public class resourceExceptionHandler {
 
     // erros de busca 404
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<execaopadrao> entityNotFound(RuntimeException e, HttpServletRequest request) {
+    public ResponseEntity<ExecaoPadrao> entityNotFound(RuntimeException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
-        execaopadrao err = new execaopadrao(Instant.now(), status.value(), "Recurso não encontrado", e.getMessage(), request.getRequestURI());
+        ExecaoPadrao err = new ExecaoPadrao(Instant.now(), status.value(), "Recurso não encontrado", e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
     // erro de sintaxe 400
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
-    public ResponseEntity<execaopadrao> badRequest(org.springframework.http.converter.HttpMessageNotReadableException e, HttpServletRequest request) {
+    public ResponseEntity<ExecaoPadrao> badRequest(org.springframework.http.converter.HttpMessageNotReadableException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST; // 400
-        execaopadrao err = new execaopadrao(
+        ExecaoPadrao err = new ExecaoPadrao(
                 Instant.now(),
                 status.value(),
                 "Erro na sintaxe do JSON",
@@ -37,14 +36,14 @@ public class resourceExceptionHandler {
 
     //mostra exatamente o campo que o cliente não preencheu corretamente
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
-    public ResponseEntity<execaopadrao> validation(org.springframework.web.bind.MethodArgumentNotValidException e, HttpServletRequest request) {
+    public ResponseEntity<ExecaoPadrao> validation(org.springframework.web.bind.MethodArgumentNotValidException e, HttpServletRequest request) {
 
 
         String mensagemErro = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 
         HttpStatus status = HttpStatus.BAD_REQUEST; // Código 400
 
-        execaopadrao err = new execaopadrao(
+        ExecaoPadrao err = new ExecaoPadrao(
                 java.time.Instant.now(),
                 status.value(),
                 "Erro de integridade de dados",

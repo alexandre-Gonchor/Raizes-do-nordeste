@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.api.DTO.usuarios;
+package com.raizesdonordeste.backend.api.DTO.Response;
 
 public record AutenticacaoDTO(
 

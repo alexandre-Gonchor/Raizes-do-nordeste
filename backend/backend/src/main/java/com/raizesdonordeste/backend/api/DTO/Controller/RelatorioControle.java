@@ -1,7 +1,8 @@
-package com.raizesdonordeste.backend.api.DTO.Relatorio;
+package com.raizesdonordeste.backend.api.DTO.Controller;
 
 
-import com.raizesdonordeste.backend.api.DTO.Unidade.HistoricoEstoqueDTO;
+import com.raizesdonordeste.backend.api.DTO.Response.HistoricoEstoqueDTO;
+import com.raizesdonordeste.backend.api.DTO.Response.RelatorioDesempenhoDTO;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.infra.Historioestoque_Repositorio;
 import com.raizesdonordeste.backend.infra.Pedido_Repositorio;
@@ -47,7 +48,7 @@ public class RelatorioControle {
 
     //Desenpenho mensal
     @GetMapping("/vendas/{unidadeID}")
-    public ResponseEntity<RelatorioDesenpenhoDTO> relatorioVendas(
+    public ResponseEntity<RelatorioDesempenhoDTO> relatorioVendas(
             @PathVariable Long unidadeID,
             @RequestParam int ano,
             @RequestParam int mes){
@@ -67,7 +68,7 @@ public class RelatorioControle {
 
         String mesFormatado = inicioMes.format(DateTimeFormatter.ofPattern("MM/yyyy"));
 
-        return ResponseEntity.ok(new RelatorioDesenpenhoDTO(mesFormatado, totalPedidos, faturamentoTotal));
+        return ResponseEntity.ok(new RelatorioDesempenhoDTO(mesFormatado, totalPedidos, faturamentoTotal));
 
 
 

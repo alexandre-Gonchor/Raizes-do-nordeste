@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.api.DTO.Unidade;
+package com.raizesdonordeste.backend.api.DTO.Response;
 
 import com.raizesdonordeste.backend.dominio.Enums.TipoMovimentacao;
 

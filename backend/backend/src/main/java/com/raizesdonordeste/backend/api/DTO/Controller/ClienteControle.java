@@ -1,5 +1,6 @@
-package com.raizesdonordeste.backend.api.DTO.cliente;
+package com.raizesdonordeste.backend.api.DTO.Controller;
 
+import com.raizesdonordeste.backend.api.DTO.Request.ClienteRequestDTO;
 import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.servico.ClienteServico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,7 +19,7 @@ public class ClienteControle {
     private ClienteServico servico;
 
     @PostMapping
-    public ResponseEntity<Cliente> cadastrar(@Valid @RequestBody ClienterequestDTO dto) {
+    public ResponseEntity<Cliente> cadastrar(@Valid @RequestBody ClienteRequestDTO dto) {
 
         Cliente novoCliente = servico.salvar(dto);
 

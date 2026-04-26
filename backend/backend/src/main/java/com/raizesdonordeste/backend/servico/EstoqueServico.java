@@ -8,7 +8,7 @@ import com.raizesdonordeste.backend.dominio.estoque.movimentacoes;
 import com.raizesdonordeste.backend.dominio.pedidos.Produto;
 import com.raizesdonordeste.backend.infra.Estoque_Repositorio;
 import com.raizesdonordeste.backend.infra.Historioestoque_Repositorio;
-import com.raizesdonordeste.backend.infra.Usuario_repositorio;
+import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class EstoqueServico {
 
 
     @Autowired
-    private Usuario_repositorio usuarioRepo;
+    private Usuario_Repositorio usuarioRepo;
 
     @Transactional
     public void registrarMovimentacao(Produto produto, Unidade unidade, Usuario usuario, Integer quantidade, TipoMovimentacao tipo) {

@@ -1,8 +1,8 @@
-package com.raizesdonordeste.backend.api.DTO.Relatorio;
+package com.raizesdonordeste.backend.api.DTO.Response;
 
 import java.math.BigDecimal;
 
-public record RelatorioDesenpenhoDTO(
+public record RelatorioDesempenhoDTO(
 
         String mesAno,
         Integer totalPedidos,

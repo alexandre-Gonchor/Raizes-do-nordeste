@@ -1,12 +1,12 @@
-package com.raizesdonordeste.backend.api.DTO.Unidade;
+package com.raizesdonordeste.backend.api.DTO.Controller;
 
 import com.raizesdonordeste.backend.dominio.Enums.TipoMovimentacao;
 import com.raizesdonordeste.backend.dominio.Unidade;
 import com.raizesdonordeste.backend.dominio.Usuario;
 import com.raizesdonordeste.backend.dominio.pedidos.Produto;
-import com.raizesdonordeste.backend.infra.Produto_repositorio;
+import com.raizesdonordeste.backend.infra.Produto_Repositorio;
 import com.raizesdonordeste.backend.infra.Unidade_Repositorio;
-import com.raizesdonordeste.backend.infra.Usuario_repositorio;
+import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import com.raizesdonordeste.backend.servico.EstoqueServico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,13 @@ public class EstoqueControle {
     private EstoqueServico estoqueServico;
 
     @Autowired
-    private Produto_repositorio produtoRepo;
+    private Produto_Repositorio produtoRepo;
 
     @Autowired
     private Unidade_Repositorio unidadeRepo;
 
     @Autowired
-    private Usuario_repositorio usuarioRepo;
+    private Usuario_Repositorio usuarioRepo;
 
 
     public record MovimentacaoDTO(Long produtoId, Long unidadeId, Integer quantidade, TipoMovimentacao tipo) {}

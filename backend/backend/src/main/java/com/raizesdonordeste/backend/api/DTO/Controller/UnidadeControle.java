@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.api.DTO.Unidade;
+package com.raizesdonordeste.backend.api.DTO.Controller;
 
 import com.raizesdonordeste.backend.dominio.Unidade;
 import com.raizesdonordeste.backend.infra.Unidade_Repositorio;

@@ -1,8 +1,11 @@
-package com.raizesdonordeste.backend.api.DTO.usuarios;
+package com.raizesdonordeste.backend.api.DTO.Controller;
 
 
+import com.raizesdonordeste.backend.api.DTO.Response.AutenticacaoDTO;
+import com.raizesdonordeste.backend.api.DTO.Response.LoginResponseDTO;
+import com.raizesdonordeste.backend.api.DTO.Response.RegistroDTO;
 import com.raizesdonordeste.backend.dominio.Usuario;
-import com.raizesdonordeste.backend.infra.Usuario_repositorio;
+import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import com.raizesdonordeste.backend.servico.TokenServico;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,7 @@ public class AuthControle {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private Usuario_repositorio repository;
+    private Usuario_Repositorio repository;
 
     @Autowired
     private TokenServico tokenServico;

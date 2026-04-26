@@ -1,5 +1,6 @@
-package com.raizesdonordeste.backend.api.DTO.pedidos;
+package com.raizesdonordeste.backend.api.DTO.Controller;
 
+import com.raizesdonordeste.backend.api.DTO.Request.PedidoRequestDTO;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.servico.PedidoServico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @RestController
 @RequestMapping ("/pedidos")
 @SecurityRequirement(name = "bearerAuth")
-public class pedidoControle {
+public class PedidoControle {
 
     @Autowired
     private PedidoServico pedidoServico;

@@ -1,8 +1,7 @@
-package com.raizesdonordeste.backend.api.DTO.pedidos;
+package com.raizesdonordeste.backend.api.DTO.Request;
 
 import java.util.List;
 
-import com.raizesdonordeste.backend.dominio.Cliente;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record PedidoRequestDTO(

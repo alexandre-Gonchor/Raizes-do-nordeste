@@ -1,8 +1,8 @@
-package com.raizesdonordeste.backend.api.DTO.exeptions;
+package com.raizesdonordeste.backend.configuracao;
 
 import java.time.Instant;
 
-public record execaopadrao(
+public record ExecaoPadrao(
         Instant timestamp,
         Integer status,
         String error,

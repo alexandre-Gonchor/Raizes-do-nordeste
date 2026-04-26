@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.api.DTO.cliente;
+package com.raizesdonordeste.backend.api.DTO.Request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 
 
-public record ClienterequestDTO(
+public record ClienteRequestDTO(
 
         @NotBlank(message = "o email é obrigatorio")
         @Schema (example = "formato invalido")

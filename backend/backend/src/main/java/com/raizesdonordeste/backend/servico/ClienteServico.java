@@ -1,9 +1,9 @@
 package com.raizesdonordeste.backend.servico;
 
-import com.raizesdonordeste.backend.api.DTO.cliente.ClienterequestDTO;
+import com.raizesdonordeste.backend.api.DTO.Request.ClienteRequestDTO;
 import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.dominio.Enums.ClientePerfil;
-import com.raizesdonordeste.backend.infra.Cliente_repositorio;
+import com.raizesdonordeste.backend.infra.Cliente_Repositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +15,9 @@ import java.time.LocalDate;
 public class ClienteServico {
 
     @Autowired
-    private Cliente_repositorio repositorio;
+    private Cliente_Repositorio repositorio;
 
-    public Cliente salvar(ClienterequestDTO dto) {
+    public Cliente salvar(ClienteRequestDTO dto) {
         Cliente cliente = new Cliente();
 
         // Mapeamento de dados
