@@ -7,7 +7,7 @@ import com.raizesdonordeste.backend.dominio.pedidos.Produto;
 import com.raizesdonordeste.backend.infra.Produto_Repositorio;
 import com.raizesdonordeste.backend.infra.Unidade_Repositorio;
 import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
-import com.raizesdonordeste.backend.servico.EstoqueServico;
+import com.raizesdonordeste.backend.aplicacao.EstoqueServico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

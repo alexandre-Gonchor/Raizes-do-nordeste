@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.servico;
+package com.raizesdonordeste.backend.aplicacao;
 
 import com.raizesdonordeste.backend.dominio.Enums.TipoMovimentacao;
 import com.raizesdonordeste.backend.dominio.Unidade;

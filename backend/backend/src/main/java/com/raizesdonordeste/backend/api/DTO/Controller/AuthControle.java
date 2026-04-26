@@ -6,7 +6,7 @@ import com.raizesdonordeste.backend.api.DTO.Response.LoginResponseDTO;
 import com.raizesdonordeste.backend.api.DTO.Response.RegistroDTO;
 import com.raizesdonordeste.backend.dominio.Usuario;
 import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
-import com.raizesdonordeste.backend.servico.TokenServico;
+import com.raizesdonordeste.backend.aplicacao.TokenServico;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

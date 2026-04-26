@@ -27,9 +27,11 @@ public class segurancaconfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API sem estado
                 .authorizeHttpRequests(authorize -> authorize
 
+                        .requestMatchers(HttpMethod.GET, "/cardapio/vitrine/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
 
                         .requestMatchers(HttpMethod.POST, "/produtos").hasAuthority("ROLE_ADMIN")

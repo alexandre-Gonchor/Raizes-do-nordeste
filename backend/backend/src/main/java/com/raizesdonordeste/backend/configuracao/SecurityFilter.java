@@ -1,7 +1,7 @@
 package com.raizesdonordeste.backend.configuracao;
 
 import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
-import com.raizesdonordeste.backend.servico.TokenServico;
+import com.raizesdonordeste.backend.aplicacao.TokenServico;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.servico;
+package com.raizesdonordeste.backend.aplicacao;
 
 import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import org.springframework.beans.factory.annotation.Autowired;

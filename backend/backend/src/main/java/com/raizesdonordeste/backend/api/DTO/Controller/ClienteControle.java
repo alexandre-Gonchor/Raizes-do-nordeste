@@ -2,7 +2,7 @@ package com.raizesdonordeste.backend.api.DTO.Controller;
 
 import com.raizesdonordeste.backend.api.DTO.Request.ClienteRequestDTO;
 import com.raizesdonordeste.backend.dominio.Cliente;
-import com.raizesdonordeste.backend.servico.ClienteServico;
+import com.raizesdonordeste.backend.aplicacao.ClienteServico;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

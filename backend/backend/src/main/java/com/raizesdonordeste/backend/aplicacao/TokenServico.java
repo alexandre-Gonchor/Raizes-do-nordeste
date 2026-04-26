@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.servico;
+package com.raizesdonordeste.backend.aplicacao;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

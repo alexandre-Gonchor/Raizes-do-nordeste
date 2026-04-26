@@ -1,4 +1,4 @@
-package com.raizesdonordeste.backend.servico;
+package com.raizesdonordeste.backend.aplicacao;
 import com.raizesdonordeste.backend.api.DTO.Request.ItemPedidoRequestDTO;
 import com.raizesdonordeste.backend.api.DTO.Request.PedidoRequestDTO;
 import com.raizesdonordeste.backend.dominio.Cliente;
@@ -8,10 +8,7 @@ import com.raizesdonordeste.backend.dominio.Usuario;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.dominio.pedidos.Produto;
 import com.raizesdonordeste.backend.dominio.pedidos.itemPedido;
-import com.raizesdonordeste.backend.infra.Cliente_Repositorio;
-import com.raizesdonordeste.backend.infra.Pedido_Repositorio;
-import com.raizesdonordeste.backend.infra.Produto_Repositorio;
-import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
+import com.raizesdonordeste.backend.infra.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +40,9 @@ public class PedidoServico {
 
     @Autowired
     private Usuario_Repositorio usuarioRepo;
+
+    @Autowired
+    private Promocao_Repositorio promocaoRepo;
 
     @Transactional
     public Pedidos criarNovoPedido(PedidoRequestDTO dto) {
@@ -113,6 +113,22 @@ public class PedidoServico {
         novoPedido.setCliente(cliente);
 
 
+        //LÓGICA DA PROMOÇÃO (CUPOM)
+
+        if (dto.cupom() != null && !dto.cupom().isBlank()) {
+            var promocao = promocaoRepo.findByCodigoAndAtivaTrue(dto.cupom().toUpperCase());
+
+            if (promocao.isPresent()) {
+                BigDecimal porcentagem = promocao.get().getPercentualDesconto().divide(new BigDecimal("100"));
+                BigDecimal valorDoDesconto = totalPedido.multiply(porcentagem);
+                totalPedido = totalPedido.subtract(valorDoDesconto);
+            } else {
+                throw new RuntimeException("Cupom inválido ou expirado!");
+            }
+        }
+
+
+        //LÓGICA DOS PONTOS DE FIDELIDADE
         if (dto.usarPontos() != null && dto.usarPontos()) {
             int saldoPontos = cliente.getPontosAcumulados() != null ? cliente.getPontosAcumulados() : 0;
             if (saldoPontos > 0) {

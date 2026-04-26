@@ -7,78 +7,729 @@ meta:
   modified: 1775168111263
   description: ""
 collection:
-  - url: http://localhost:8080/pedidos
-    name: Criar pedido - APP
+  - name: Raízes do Nordeste - Coleção de testes
     meta:
-      id: req_8849b92963244a2aba8f081d9edb52d1
-      created: 1775168130171
-      modified: 1775361144328
-      isPrivate: false
-      description: ""
-      sortKey: -1775168130171
-    method: POST
-    body:
-      mimeType: application/json
-      text: |-
-        {
-          "canalPedido": "APP",
-          "itens": [
-            {
-              "produtoID": 1,
-              "quantidade": 2
-            }
-          ]
-        }
-    headers:
-      - name: Content-Type
-        value: application/json
-      - name: User-Agent
-        value: insomnia/12.5.0
-        description: ""
-        disabled: false
-    authentication:
-      type: none
-    settings:
-      renderRequestBody: true
-      encodeUrl: true
-      followRedirects: global
-      cookies:
-        send: true
-        store: true
-      rebuildPath: true
-  - url: http://localhost:8080/pedidos/2/pagar
-    name: Sistema Pagamentos
-    meta:
-      id: req_0521271e03b449b19a769b016f6048af
-      created: 1775336583567
-      modified: 1775360577221
-      isPrivate: false
-      description: ""
-      sortKey: -1775336583567
-    method: PUT
-    headers:
-      - name: User-Agent
-        value: insomnia/12.5.0
-        description: ""
-        disabled: false
-    settings:
-      renderRequestBody: true
-      encodeUrl: true
-      followRedirects: global
-      cookies:
-        send: true
-        store: true
-      rebuildPath: true
+      id: fld_1bc8b526df614f9aa14a58c945376273
+      created: 1777235628052
+      modified: 1777235714128
+      sortKey: -1777235626883
+      description: Coleção unificada contendo funcionalidades de negócio e testes de
+        resiliência/erros, documentada com cenários de teste detalhados.
+    children:
+      - name: 1. Usuários e Autenticação
+        meta:
+          id: fld_afbc11eeb662450f8fe26fe43023e191
+          created: 1777235628057
+          modified: 1777235628057
+          sortKey: -1777235626882
+          description: ""
+        children:
+          - url: http://localhost:8080/usuarios
+            name: T01 - Cadastro de Usuário (201)
+            meta:
+              id: req_2aeb2dd44ec34bc88ab439dc3735b423
+              created: 1777235628091
+              modified: 1777235628091
+              isPrivate: false
+              description: |-
+                **Cenário:** Cadastro de usuário válido
+
+                **Endpoint:** POST /usuarios
+
+                **Pré-condição:** Nenhuma
+
+                **Entrada:** Dados do usuário e aceite LGPD
+
+                **Esperado:** 201 Created com os dados salvos
+
+                **Evidência:** T01 - Cadastro de Usuário
+              sortKey: -1777235626881
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "canalPedido": "APP",
+                  "nome": "Guilherme",
+                  "email": "gui@email.com",
+                  "senha": "1234",
+                  "role": "CLIENTE",
+                  "consentimentoLgpd": true
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/auth/login
+            name: T02 - Fazer Login (200)
+            meta:
+              id: req_05b6d923e10044c1b2d696259f721934
+              created: 1777235628093
+              modified: 1777235628093
+              isPrivate: false
+              description: |-
+                **Cenário:** Autenticação de usuário para obtenção de token
+
+                **Endpoint:** POST /auth/login
+
+                **Pré-condição:** Usuário cadastrado no banco
+
+                **Entrada:** Credenciais (login/senha)
+
+                **Esperado:** 200 OK e Token JWT no corpo da resposta
+
+                **Evidência:** T02 - Fazer Login
+              sortKey: -1777235626880
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "login": "gui@email.com",
+                  "senha": "1234"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/auth/login
+            name: "E01 - ERRO: Login Inválido (403)"
+            meta:
+              id: req_fc917eb7a92a4d719d117d75d2329072
+              created: 1777235628107
+              modified: 1777235628107
+              isPrivate: false
+              description: |-
+                **Cenário:** Tentativa de login com credenciais incorretas
+
+                **Endpoint:** POST /auth/login
+
+                **Pré-condição:** Nenhuma
+
+                **Entrada:** Senha incorreta
+
+                **Esperado:** 403 Forbidden (Acesso Negado)
+
+                **Evidência:** E01 - Segurança de Login
+              sortKey: -1777235626879
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "login": "gui@email.com",
+                  "senha": "SENHA_ERRADA"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: 2. Unidades e Catálogo
+        meta:
+          id: fld_b9174e9ffcd641049e821795b71ba382
+          created: 1777235628112
+          modified: 1777235628112
+          sortKey: -1777235626878
+          description: ""
+        children:
+          - url: http://localhost:8080/unidades
+            name: T03 - Criar Matriz (201)
+            meta:
+              id: req_bb485df864494326ba839aadf7dc7371
+              created: 1777235628114
+              modified: 1777235628114
+              isPrivate: false
+              description: |-
+                **Cenário:** Cadastro de uma nova unidade/filial
+
+                **Endpoint:** POST /unidades
+
+                **Pré-condição:** Estar logado com permissão
+
+                **Esperado:** 201 Created
+
+                **Evidência:** T03 - Cadastro de Unidade
+              sortKey: -1777235626877
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "nome": "Matriz Centro",
+                  "cnpj": "12345678000199",
+                  "endereco": "Rua do Sol, 100"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/cardapio/vitrine/1
+            name: T04 - Vitrine do Cardápio (200)
+            meta:
+              id: req_c373a9e53afb46f998eebbc45af2a00b
+              created: 1777235628116
+              modified: 1777235628116
+              isPrivate: false
+              description: >-
+                **Cenário:** Exibir produtos com estoque ativo na unidade
+                (Endpoint Público)
+
+
+                **Endpoint:** GET /cardapio/vitrine/{unidadeId}
+
+
+                **Pré-condição:** Unidade ter produtos com estoque maior que
+                zero
+
+
+                **Esperado:** 200 OK com lista de produtos
+
+
+                **Evidência:** T04 - Busca do Catálogo
+              sortKey: -1777235626876
+            method: GET
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: 3. Estoque Logístico
+        meta:
+          id: fld_b87afa0555ee401c8c4a98b5c2a5d8be
+          created: 1777235628118
+          modified: 1777235628118
+          sortKey: -1777235626875
+          description: ""
+        children:
+          - url: http://localhost:8080/estoque/entrada
+            name: T05 - Entrada de Mercadoria (200)
+            meta:
+              id: req_43c568aecd404dd59c75985fbe9e8f08
+              created: 1777235628120
+              modified: 1777235628120
+              isPrivate: false
+              description: |-
+                **Cenário:** Registrar entrada de produtos pelo gerente
+
+                **Endpoint:** POST /estoque/entrada
+
+                **Pré-condição:** Usuário logado e vinculado a uma unidade
+
+                **Esperado:** 200 OK confirmando a entrada
+
+                **Evidência:** T05 - Reabastecimento
+              sortKey: -1777235626874
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "produtoId": 1,
+                  "quantidade": 50
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/estoque/movimentacao
+            name: "E02 - ERRO: Estoque Insuficiente (500)"
+            meta:
+              id: req_3f3854247bae450a80056c02747cec8d
+              created: 1777235628122
+              modified: 1777235628122
+              isPrivate: false
+              description: >-
+                **Cenário:** Tentar retirar mais itens do que o disponível no
+                estoque
+
+
+                **Endpoint:** POST /estoque/movimentacao
+
+
+                **Pré-condição:** Quantidade solicitada > Saldo atual
+
+
+                **Esperado:** 500 Internal Server Error (Lançamento de
+                Exception)
+
+
+                **Evidência:** E02 - Validação de limite de estoque
+              sortKey: -1777235626873
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "produtoId": 1,
+                  "unidadeId": 1,
+                  "quantidade": 999999,
+                  "tipo": "SAIDA"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: 4. Promoções
+        meta:
+          id: fld_a158528f7e344259b449333ca0aa52f8
+          created: 1777235628123
+          modified: 1777235628123
+          sortKey: -1777235626872
+          description: ""
+        children:
+          - url: http://localhost:8080/promocoes
+            name: T06 - Criar Cupom de Desconto (201)
+            meta:
+              id: req_bc57f6eb743e4837b08037659d109697
+              created: 1777235628125
+              modified: 1777235628125
+              isPrivate: false
+              description: |-
+                **Cenário:** Cadastro de nova promoção/campanha pelo gerente
+
+                **Endpoint:** POST /promocoes
+
+                **Pré-condição:** Estar logado
+
+                **Esperado:** 201 Created confirmando a gravação do cupom
+
+                **Evidência:** T06 - Criação de Campanha
+              sortKey: -1777235626871
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "codigo": "SAOJOAO20",
+                  "descricao": "Desconto de 20% no mês junino",
+                  "percentualDesconto": 20.00,
+                  "dataValidade": "2026-12-31"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: 5. Vendas e Pedidos
+        meta:
+          id: fld_e8c1639e15014d7d82b880d3561d034f
+          created: 1777235628128
+          modified: 1777235628128
+          sortKey: -1777235626870
+          description: ""
+        children:
+          - url: http://localhost:8080/pedidos
+            name: T07 - Criar Pedido com Cupom (201)
+            meta:
+              id: req_1d761b0dfc384c7cbb051afdc121836a
+              created: 1777235628130
+              modified: 1777235628130
+              isPrivate: false
+              description: >-
+                **Cenário:** Finalizar uma venda aplicando o desconto do cupom
+
+
+                **Endpoint:** POST /pedidos
+
+
+                **Pré-condição:** Cupom ativo e produto com estoque
+
+
+                **Esperado:** 201 Created com o Valor Total matematicamente
+                reduzido
+
+
+                **Evidência:** T07 - Fluxo de Venda
+              sortKey: -1777235626869
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "itens": [
+                    {
+                      "produtoID": 1,
+                      "quantidade": 2
+                    }
+                  ],
+                  "canalPedido": "APP",
+                  "ClienteId": 1,
+                  "usarPontos": false,
+                  "cupom": "SAOJOAO20"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos
+            name: T08 - Listar Pedidos por Canal (200)
+            meta:
+              id: req_b8e501ef01674bb7914c8d2295953b39
+              created: 1777235628132
+              modified: 1777235628132
+              isPrivate: false
+              description: |-
+                **Cenário:** Consulta da lista de pedidos filtrando pela origem
+
+                **Endpoint:** GET /pedidos?canal=APP
+
+                **Pré-condição:** Existir pedidos do canal APP
+
+                **Esperado:** 200 OK retornando array de pedidos filtrado
+
+                **Evidência:** T08 - Filtro de Pedidos
+              sortKey: -1777235626868
+            method: GET
+            parameters:
+              - name: canal
+                value: APP
+                disabled: false
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos/1/status
+            name: T09 - Atualizar Status do Pedido (200)
+            meta:
+              id: req_03b029e207ad4e449b9d2eee149d6898
+              created: 1777235628134
+              modified: 1777235628134
+              isPrivate: false
+              description: >-
+                **Cenário:** Alterar a etapa de produção de um pedido ativo
+
+
+                **Endpoint:** PUT /pedidos/{id}/status
+
+
+                **Pré-condição:** Pedido existir e não estar
+                Finalizado/Cancelado
+
+
+                **Esperado:** 200 OK com o status atualizado para EM_PREPARO
+
+
+                **Evidência:** T09 - Fluxo de Produção
+              sortKey: -1777235626867
+            method: PUT
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "status": "EM_PREPARO"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos
+            name: "E03 - ERRO: Pedido com Cupom Falso (500/400)"
+            meta:
+              id: req_911db27d9a5e4e43a93821b96bd6a0d3
+              created: 1777235628136
+              modified: 1777235628136
+              isPrivate: false
+              description: >-
+                **Cenário:** Cliente tenta forçar um cupom que não existe
+
+
+                **Endpoint:** POST /pedidos
+
+
+                **Pré-condição:** Nenhuma
+
+
+                **Esperado:** Erro gerado pela RuntimeException 'Cupom inválido
+                ou expirado!'
+
+
+                **Evidência:** E03 - Validação de Promoção
+              sortKey: -1777235626866
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "itens": [{"produtoID": 1, "quantidade": 2}],
+                  "canalPedido": "APP",
+                  "ClienteId": 1,
+                  "usarPontos": false,
+                  "cupom": "CUPOM_INVENTADO"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos/99999
+            name: "E04 - ERRO: Buscar Pedido Inexistente (404)"
+            meta:
+              id: req_6ba7ae20d38e4781b7e7a02a1d3005c5
+              created: 1777235628139
+              modified: 1777235628139
+              isPrivate: false
+              description: >-
+                **Cenário:** Tentar acessar os dados de um ID que não está no
+                banco
+
+
+                **Endpoint:** GET /pedidos/99999
+
+
+                **Esperado:** 404 Not Found gerado pelo
+                .orElse(ResponseEntity.notFound())
+
+
+                **Evidência:** E04 - Resiliência de Busca
+              sortKey: -1777235626865
+            method: GET
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: 6. Analytics e Relatórios
+        meta:
+          id: fld_e27c5493ef9c43d2abb3fe2ccdd162bf
+          created: 1777235628141
+          modified: 1777235628141
+          sortKey: -1777235626864
+          description: ""
+        children:
+          - url: http://localhost:8080/relatorios/estoque/1
+            name: T10 - Histórico de Movimentações (200)
+            meta:
+              id: req_b9614b5db00c432bbe6d2c0104b130c6
+              created: 1777235628143
+              modified: 1777235628143
+              isPrivate: false
+              description: |-
+                **Cenário:** Auditoria de entradas e saídas do estoque
+
+                **Endpoint:** GET /relatorios/estoque/{unidadeId}
+
+                **Esperado:** 200 OK com o log de movimentações
+
+                **Evidência:** T10 - Auditoria
+              sortKey: -1777235626863
+            method: GET
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/relatorios/vendas/1
+            name: T11 - Desempenho Financeiro (200)
+            meta:
+              id: req_13018a3727ca4a35a6470946e257d699
+              created: 1777235628145
+              modified: 1777235628145
+              isPrivate: false
+              description: |-
+                **Cenário:** Emitir relatório financeiro filtrado por data
+
+                **Endpoint:** GET /relatorios/vendas/{unidadeId}?ano=2026&mes=4
+
+                **Esperado:** 200 OK com métricas do mês
+
+                **Evidência:** T11 - Relatório Mensal
+              sortKey: -1777235626862
+            method: GET
+            parameters:
+              - name: ano
+                value: "2026"
+                disabled: false
+              - name: mes
+                value: "4"
+                disabled: false
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/relatorios/vendas/1
+            name: "E05 - ERRO: Relatório Sem Token (403)"
+            meta:
+              id: req_7a011e7cca244145a146724e9a8e6be6
+              created: 1777235628167
+              modified: 1777235628167
+              isPrivate: false
+              description: |-
+                **Cenário:** Acesso anônimo a relatórios confidenciais
+
+                **Endpoint:** GET /relatorios/vendas/{unidadeId}
+
+                **Pré-condição:** Não enviar o Bearer Token
+
+                **Esperado:** 403 Forbidden interceptado pelo Spring Security
+
+                **Evidência:** E05 - Proteção de Dados Sensíveis
+              sortKey: -1777235626861
+            method: GET
+            parameters:
+              - name: ano
+                value: "2026"
+                disabled: false
+              - name: mes
+                value: "4"
+                disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
     id: jar_47a6ca358a9ac48e222a777175f16a20683c4756
     created: 1775168111269
-    modified: 1775168234926
+    modified: 1776101760019
   cookies:
-    - id: a534679b-220c-460e-9700-45c0d3dce787
+    - id: d53563c8-2d47-491c-b95b-b409fbf6ab9e
       key: JSESSIONID
-      value: 183CF3EE16EF160A30B0CE6F757F4F64
+      value: 40C7D5E4E555CD9C0498DD97FDC88688
       domain: localhost
       path: /
       secure: false
@@ -89,5 +740,8 @@ environments:
   meta:
     id: env_47a6ca358a9ac48e222a777175f16a20683c4756
     created: 1775168111265
-    modified: 1775168111265
+    modified: 1777235628045
     isPrivate: false
+  data:
+    token: COLE_SEU_TOKEN_AQUI
+    baseUrl: http://localhost:8080
