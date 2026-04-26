@@ -79,6 +79,32 @@ mvn clean install
 mvn spring-boot:run
 
 ```
+
+🗄️ Como criar o banco de dados no PostgreSQL
+
+Para que a aplicação funcione, o banco de dados deve existir antes do primeiro "Run". Escolha uma das opções abaixo:
+Opção 1: Via Linha de Comando (psql ou Terminal)
+
+Abra o terminal do seu PostgreSQL e execute o comando abaixo:
+SQL
+
+CREATE DATABASE raizes_nordeste_db;
+
+Opção 2: Via Interface Gráfica (pgAdmin ou DBeaver)
+
+    Conecte-se ao seu servidor local do PostgreSQL.
+
+    Clique com o botão direito em Databases (Bancos de Dados).
+
+    Selecione Create > Database....
+
+    No campo "Database", digite exatamente: raizes_nordeste_db.
+
+    Clique em Save (Salvar).
+
+    Importante: Após criar o banco, não é necessário criar tabelas. O Hibernate (JPA) lerá as classes Java e gerará toda a estrutura de tabelas, chaves primárias e relacionamentos automaticamente assim que você iniciar a API pela primeira vez.
+
+
 ## 🧪 Testando a API
 
 ### Opção 1: Swagger UI (Recomendado)
@@ -93,22 +119,55 @@ Na raiz do projeto, está disponível o arquivo `insomnia_collection.json`. Impo
 
 ---
 
-### 📝 Exemplos de Requisições
 
-**1. Criar um Pedido (`POST /pedidos`):**
-```json
-{
-  "itens": [
-    {
-      "produtoID": 1,
-      "quantidade": 2
-    }
-  ],
-  "canalPedido": "APP",
-  "ClienteId": 1,
-  "usarPontos": false,
-  "cupom": "SAOJOAO20"
-}
+---
 
-```
+## 🔄 Fluxos Principais Implementados 
+
+O projeto contempla a implementação completa "End-to-End" dos dois principais fluxos operacionais exigidos, garantindo que o ciclo de vida dos dados seja fechado e testável.
+
+### 🛒 Fluxo A: Pedido → Pagamento (Mock) → Atualização de Status
+Este fluxo simula a jornada completa do cliente no Totem de autoatendimento, desde a escolha do produto até a entrega no balcão.
+
+1. **Criar Pedido (`POST /pedidos`):** * Valida a existência dos itens e se há estoque disponível.
+    * Aplica regras de negócio matemáticas (validação de Cupons Promocionais e uso de Pontos de Fidelidade).
+    * Realiza a baixa (Saída) imediata no estoque logístico da unidade.
+2. **Registro de Pagamento Mock (`POST /pedidos/{id}/pagamento`):** * Simula a comunicação com um Gateway de Pagamento (ex: Stone/Cielo).
+    * Possui uma lógica randômica para aprovar ou recusar a transação, alterando o status financeiro do pedido.
+3. **Atualização de Status Logístico (`PUT /pedidos/{id}/status`):** * Permite que o gerente da filial avance a esteira de produção (de `PAGO` para `EM_PREPARO` e, finalmente, `ENTREGUE`).
+
+### 📦 Fluxo B: Estoque Distribuído por Unidade (Multi-Tenant)
+Este fluxo garante o isolamento físico e lógico das mercadorias entre a Matriz e as Filiais.
+
+1. **Cadastrar/Consultar Produto (`GET /cardapio/vitrine/{unidadeId}`):** * Realiza uma busca inteligente (Join) que só exibe para o cliente os produtos que possuem saldo positivo na filial em que ele se encontra.
+2. **Movimentar Estoque (`POST /estoque/entrada`):** * Permite o reabastecimento logístico. O gerente insere as mercadorias que chegaram do fornecedor diretamente no saldo da sua unidade correspondente.
+3. **Consultar Saldo e Auditoria (`GET /relatorios/estoque/{unidadeId}`):** * Gera um relatório completo de todas as movimentações de Entrada (reabastecimento) e Saída (vendas) ocorridas na unidade, garantindo rastreabilidade (Auditoria).
+
+---
+
+
+
+## 📡 Endpoints da API
+
+A documentação interativa e completa está disponível via **Swagger UI** acessando `http://localhost:8080/swagger-ui.html` enquanto a aplicação estiver rodando.
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/auth/register` | Cadastra um novo usuário/cliente no sistema (com aceite LGPD). | ❌ |
+| `POST` | `/auth/login` | Valida as credenciais e retorna o Token JWT de acesso. | ❌ |
+| `POST` | `/unidades` | Cadastra uma nova unidade física (Matriz ou Filiais). | ✅ |
+| `GET` | `/unidades` | Lista todas as unidades cadastradas no sistema. | ✅ |
+| `GET` | `/unidades/{id}` | Retorna os detalhes de uma unidade específica. | ✅ |
+| `GET` | `/cardapio/vitrine/{unidadeId}` | Lista produtos disponíveis (estoque > 0) para os clientes. | ❌ |
+| `POST` | `/estoque/entrada` | Registra administrativamente o reabastecimento de produtos. | ✅ |
+| `POST` | `/promocoes` | Cria uma nova campanha/cupom de desconto no sistema. | ✅ |
+| `POST` | `/pedidos` | Cria um pedido, aplica descontos matemáticos e dá baixa no estoque. | ✅ |
+| `POST` | `/pedidos/{id}/pagamento` | Processa o Gateway de Pagamento Simulado (Mock). | ✅ |
+| `GET` | `/pedidos` | Lista o histórico de pedidos (suporta filtros, ex: `?canal=APP`). | ✅ |
+| `GET` | `/pedidos/{id}` | Consulta os detalhes e itens de um pedido específico. | ✅ |
+| `PUT` | `/pedidos/{id}/status` | Atualiza o status logístico do pedido (ex: `EM_PREPARO`). | ✅ |
+| `GET` | `/relatorios/estoque/{unidadeId}`| Retorna a auditoria de movimentações logísticas da filial. | ✅ |
+| `GET` | `/relatorios/vendas/{unidadeId}` | Retorna as métricas de faturamento mensal da filial. | ✅ |
+
+> **Nota sobre Autenticação (✅):** Endpoints marcados como protegidos exigem o envio do token no Header da requisição: `Authorization: Bearer <seu_token_aqui>`.
 
