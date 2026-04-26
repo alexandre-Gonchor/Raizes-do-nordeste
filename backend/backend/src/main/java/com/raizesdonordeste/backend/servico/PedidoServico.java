@@ -1,15 +1,23 @@
 package com.raizesdonordeste.backend.servico;
 import com.raizesdonordeste.backend.api.DTO.pedidos.ItemPedidoRequestDTO;
 import com.raizesdonordeste.backend.api.DTO.pedidos.PedidoRequestDTO;
+import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
+import com.raizesdonordeste.backend.dominio.Enums.TipoMovimentacao;
+import com.raizesdonordeste.backend.dominio.Usuario;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.dominio.pedidos.Produto;
 import com.raizesdonordeste.backend.dominio.pedidos.itemPedido;
+import com.raizesdonordeste.backend.infra.Cliente_repositorio;
 import com.raizesdonordeste.backend.infra.Pedido_Repositorio;
 import com.raizesdonordeste.backend.infra.Produto_repositorio;
+import com.raizesdonordeste.backend.infra.Usuario_repositorio;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,49 +32,112 @@ public class PedidoServico {
     @Autowired
     private Produto_repositorio produtoRepo;
 
+    @Autowired
+    private Cliente_repositorio clienteRepo;
 
-    //public de criação dos pedidos
-    public Pedidos criarNovoPedido(PedidoRequestDTO dto) { // Alterado para receber o DTO
+    @Autowired
+    private ClienteServico clienteServico;
 
-        // cria a instancia da entidade
+    @Autowired
+    private EstoqueServico estoqueServico;
+
+    @Autowired
+    private Usuario_repositorio usuarioRepo;
+
+    @Transactional
+    public Pedidos criarNovoPedido(PedidoRequestDTO dto) {
+
+        // 1. BUSCAR FUNCIONÁRIO LOGADO E SUA UNIDADE
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new RuntimeException("Erro de segurança: Usuário não está autenticado no sistema!");
+        }
+        String loginFuncionario = authentication.getName();
+
+
+
+        var userDetails = usuarioRepo.findByLogin(loginFuncionario);
+        if (userDetails == null) {
+            throw new RuntimeException("Funcionário logado não encontrado no banco de dados!");
+        }
+
+        Usuario funcionario = (Usuario) userDetails;
+
+
+        if (funcionario.getUnidade() == null) {
+            throw new RuntimeException("Erro: Este funcionário não está vinculado a nenhuma unidade/estoque.");
+        }
+
         Pedidos novoPedido = new Pedidos();
-
-        // definidos dados do DTO
         novoPedido.setDataCriacao(LocalDateTime.now());
         novoPedido.setStatus("Pagamento_em_Aguardo");
         novoPedido.setCanalPedido(Canal_Pedidos.valueOf(dto.canalPedido()));
 
+        // ASSOCIA O PEDIDO À UNIDADE DO FUNCIONÁRIO
+        novoPedido.setUnidade(funcionario.getUnidade());
+
         BigDecimal totalPedido = BigDecimal.ZERO;
         List<itemPedido> itensReais = new ArrayList<>();
 
-
         if (dto.itens() != null) {
             for (ItemPedidoRequestDTO itemDto : dto.itens()) {
-
-
                 Produto produtoReal = produtoRepo.findById(itemDto.produtoID())
                         .orElseThrow(() -> new RuntimeException("produto não encontrado"));
-
 
                 itemPedido item = new itemPedido();
                 item.setProduto(produtoReal);
                 item.setPedido(novoPedido);
                 item.setQuantidade(itemDto.quantidade());
 
-
                 BigDecimal quantidade = new BigDecimal(item.getQuantidade());
                 BigDecimal subtotalItem = produtoReal.getPreco().multiply(quantidade);
 
                 totalPedido = totalPedido.add(subtotalItem);
                 itensReais.add(item);
+
+                // 2. BAIXA AUTOMÁTICA DE ESTOQUE
+
+                estoqueServico.registrarMovimentacao(
+                        produtoReal,
+                        funcionario.getUnidade(),
+                        funcionario,
+                        item.getQuantidade(),
+                        TipoMovimentacao.SAIDA
+                );
+            }
+        }
+
+        Cliente cliente = clienteRepo.findById(dto.ClienteId())
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        novoPedido.setCliente(cliente);
+
+
+        if (dto.usarPontos() != null && dto.usarPontos()) {
+            int saldoPontos = cliente.getPontosAcumulados() != null ? cliente.getPontosAcumulados() : 0;
+            if (saldoPontos > 0) {
+                BigDecimal taxaConversao = new BigDecimal("10");
+                BigDecimal desconto = new BigDecimal(saldoPontos).divide(taxaConversao, 2, RoundingMode.HALF_UP);
+
+                if (desconto.compareTo(totalPedido) > 0) {
+                    desconto = totalPedido;
+                }
+                totalPedido = totalPedido.subtract(desconto);
+                cliente.setPontosAcumulados(0);
+                clienteRepo.save(cliente);
             }
         }
 
         novoPedido.setItens(itensReais);
         novoPedido.setValorTotal(totalPedido);
 
-        return pedidoRepo.save(novoPedido);
+        Pedidos pedidoSalvo = pedidoRepo.save(novoPedido);
+        clienteServico.adicionarPontos(cliente.getId(), totalPedido);
+
+        return pedidoSalvo;
     }
+
+
 
 
 

@@ -1,7 +1,9 @@
 package com.raizesdonordeste.backend.dominio.pedidos;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
+import com.raizesdonordeste.backend.dominio.Unidade;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -11,12 +13,10 @@ import java.util.List;
 @Entity
 @Table(name = "pedidos" )
 @Data
-
 public class Pedidos {
 
     @Id
-    @GeneratedValue(strategy =
-            GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     //Salva o nome em vez de um numero (ex: WEB)
@@ -33,6 +33,16 @@ public class Pedidos {
 
     @Column(name = "data_Criacao")
     private LocalDateTime dataCriacao;
+
+
+    // Diz ao banco que Vários Pedidos pertencem a Um Cliente
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "unidade_id")
+    private Unidade unidade;
 
     //relação de itens no pedido
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL )

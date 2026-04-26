@@ -32,10 +32,10 @@ public class segurancaconfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
 
-                        .requestMatchers(HttpMethod.POST, "/produtos").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/produtos").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/pedidos").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/pedidos").authenticated()
-
+                        .requestMatchers("/relatorios/**").hasAuthority("ROLE_ADMIN")
 
 
                         .anyRequest().authenticated()

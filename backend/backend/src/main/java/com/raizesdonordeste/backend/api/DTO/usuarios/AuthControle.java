@@ -51,7 +51,7 @@ public class AuthControle {
 
         String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.senha());
 
-        Usuario novoUsuario = new Usuario(null, dto.login(), senhaCriptografada, dto.role());
+        Usuario novoUsuario = new Usuario(null, dto.login(), senhaCriptografada, dto.role(), null);
         this.repository.save(novoUsuario);
 
         return ResponseEntity.ok().build();

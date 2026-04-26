@@ -5,9 +5,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +34,10 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Cargos role;
 
+    @ManyToOne
+    @JoinColumn(name = "unidade_id")
+    @JsonIgnore
+    private Unidade unidade;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,4 +80,6 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true; // Usuário sempre ativo
     }
+
+
 }
