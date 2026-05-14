@@ -3,9 +3,13 @@ package com.raizesdonordeste.backend.api.DTO.Controller;
 
 import com.raizesdonordeste.backend.api.DTO.Response.HistoricoEstoqueDTO;
 import com.raizesdonordeste.backend.api.DTO.Response.RelatorioDesempenhoDTO;
+import com.raizesdonordeste.backend.dominio.Enums.StatusPedido;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
 import com.raizesdonordeste.backend.infra.Historioestoque_Repositorio;
 import com.raizesdonordeste.backend.infra.Pedido_Repositorio;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +32,13 @@ public class RelatorioControle {
     @Autowired
     private Pedido_Repositorio pedidoRepo;
 
-    //Historio estoque
+    @Operation(summary = "Histórico de movimentações de estoque", description = "Lista todas as entradas e saídas de estoque de uma unidade, com responsável e data. Restrito a administradores.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Histórico retornado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado — requer ROLE_ADMIN")
+    })
     @GetMapping("/estoque/{unidadeId}")
-    public ResponseEntity<List<HistoricoEstoqueDTO>> relatorioEstoque(@PathVariable Long unidadeId){
+    public ResponseEntity<List<HistoricoEstoqueDTO>> relatorioEstoque(@PathVariable Long unidadeId) {
 
         List<HistoricoEstoqueDTO> relatorio = historicoRepo.findByUnidadeIdOrderByDataHoraDesc(unidadeId)
 
@@ -46,7 +54,11 @@ public class RelatorioControle {
         return ResponseEntity.ok(relatorio);
     }
 
-    //Desenpenho mensal
+    @Operation(summary = "Relatório de desempenho mensal", description = "Retorna total de pedidos e faturamento de uma unidade no mês/ano indicados. Pedidos CANCELADOS excluídos do faturamento.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Relatório gerado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado — requer ROLE_ADMIN")
+    })
     @GetMapping("/vendas/{unidadeID}")
     public ResponseEntity<RelatorioDesempenhoDTO> relatorioVendas(
             @PathVariable Long unidadeID,
@@ -62,7 +74,7 @@ public class RelatorioControle {
 
         int totalPedidos = pedidosMes.size();
         BigDecimal faturamentoTotal = pedidosMes.stream()
-                .filter( p -> !p.getStatus().equalsIgnoreCase("CANCELADO"))
+                .filter(p -> p.getStatus() != StatusPedido.CANCELADO)
                 .map(Pedidos::getValorTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 

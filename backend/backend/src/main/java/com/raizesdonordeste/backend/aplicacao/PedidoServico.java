@@ -3,6 +3,7 @@ import com.raizesdonordeste.backend.api.DTO.Request.ItemPedidoRequestDTO;
 import com.raizesdonordeste.backend.api.DTO.Request.PedidoRequestDTO;
 import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
+import com.raizesdonordeste.backend.dominio.Enums.StatusPedido;
 import com.raizesdonordeste.backend.dominio.Enums.TipoMovimentacao;
 import com.raizesdonordeste.backend.dominio.Usuario;
 import com.raizesdonordeste.backend.dominio.pedidos.Pedidos;
@@ -10,6 +11,8 @@ import com.raizesdonordeste.backend.dominio.pedidos.Produto;
 import com.raizesdonordeste.backend.dominio.pedidos.itemPedido;
 import com.raizesdonordeste.backend.infra.*;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,11 @@ import java.util.List;
 
 @Service
 public class PedidoServico {
+
+    private static final Logger log = LoggerFactory.getLogger(PedidoServico.class);
+
+    @Autowired
+    private AuditoriaServico auditoriaServico;
 
     @Autowired
     private Pedido_Repositorio pedidoRepo;
@@ -70,7 +78,7 @@ public class PedidoServico {
 
         Pedidos novoPedido = new Pedidos();
         novoPedido.setDataCriacao(LocalDateTime.now());
-        novoPedido.setStatus("Pagamento_em_Aguardo");
+        novoPedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
         novoPedido.setCanalPedido(Canal_Pedidos.valueOf(dto.canalPedido()));
 
         // ASSOCIA O PEDIDO À UNIDADE DO FUNCIONÁRIO
@@ -150,6 +158,12 @@ public class PedidoServico {
         Pedidos pedidoSalvo = pedidoRepo.save(novoPedido);
         clienteServico.adicionarPontos(cliente.getId(), totalPedido);
 
+        auditoriaServico.registrar(
+                "PEDIDO_CRIADO",
+                loginFuncionario,
+                "pedidoId=" + pedidoSalvo.getId() + " canal=" + pedidoSalvo.getCanalPedido() + " total=" + pedidoSalvo.getValorTotal()
+        );
+
         return pedidoSalvo;
     }
 
@@ -157,38 +171,45 @@ public class PedidoServico {
 
 
 
-    //public de atualização do status do pedido
-    public Pedidos atualizarStatus(Long id, String atualizado) {
+    public Pedidos atualizarStatus(Long id, StatusPedido novoStatus) {
         Pedidos pedidos = pedidoRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
-        // impede a mudança em pedidos ja finalizados
-        if (pedidos.getStatus().equals("ENTREGUE") || pedidos.getStatus().equals("CANCELADO")) {
-            throw new IllegalStateException("alteração não é possivel em um pedido ja finalizado");
+        if (pedidos.getStatus() == StatusPedido.ENTREGUE || pedidos.getStatus() == StatusPedido.CANCELADO) {
+            throw new IllegalStateException("Alteração não é possível em pedido já finalizado");
         }
 
-        pedidos.setStatus(atualizado);
+        StatusPedido statusAnterior = pedidos.getStatus();
+        pedidos.setStatus(novoStatus);
 
-        System.out.println("log: Pedido" + id + "alterado para" + atualizado + "em" + java.time.LocalDateTime.now());
+        String usuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+        auditoriaServico.registrar(
+                "STATUS_PEDIDO_ALTERADO",
+                usuarioLogado,
+                "pedidoId=" + id + " de=" + statusAnterior + " para=" + novoStatus
+        );
 
         return pedidoRepo.save(pedidos);
     }
 
 
 
-    //public que simula o sistema de pagamento com 10% de chance de falha
-    public Pedidos processarPagamento (Long id){
+    // Simula pagamento com 10% de chance de falha
+    public Pedidos processarPagamento(Long id) {
         Pedidos pedidos = pedidoRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
         boolean aprovado = Math.random() > 0.1;
+        StatusPedido novoStatus = aprovado ? StatusPedido.PAGO : StatusPedido.PAGAMENTO_RECUSADO;
+        pedidos.setStatus(novoStatus);
 
-        if (aprovado) {
-            pedidos.setStatus("Pago");
+        String usuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+        auditoriaServico.registrar(
+                "PAGAMENTO_PROCESSADO",
+                usuarioLogado,
+                "pedidoId=" + id + " resultado=" + novoStatus
+        );
 
-        }else{
-            pedidos.setStatus("pagamento recusado");
-        }
         return pedidoRepo.save(pedidos);
     }
 

@@ -8,7 +8,13 @@ import com.raizesdonordeste.backend.infra.Produto_Repositorio;
 import com.raizesdonordeste.backend.infra.Unidade_Repositorio;
 import com.raizesdonordeste.backend.infra.Usuario_Repositorio;
 import com.raizesdonordeste.backend.aplicacao.EstoqueServico;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,32 +40,36 @@ public class EstoqueControle {
     @Autowired
     private Usuario_Repositorio usuarioRepo;
 
+    public record MovimentacaoDTO(
+            @NotNull(message = "ID do produto é obrigatório") Long produtoId,
+            @NotNull(message = "ID da unidade é obrigatório") Long unidadeId,
+            @NotNull @Min(value = 1, message = "Quantidade mínima é 1") Integer quantidade,
+            @NotNull(message = "Tipo de movimentação é obrigatório (ENTRADA ou SAIDA)") TipoMovimentacao tipo
+    ) {}
 
-    public record MovimentacaoDTO(Long produtoId, Long unidadeId, Integer quantidade, TipoMovimentacao tipo) {}
-
-
+    @Operation(summary = "Registrar movimentação de estoque", description = "Entrada ou saída manual de produtos em uma unidade. Registra histórico com usuário responsável.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Movimentação registrada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "404", description = "Produto ou unidade não encontrado"),
+            @ApiResponse(responseCode = "422", description = "Estoque insuficiente para saída solicitada")
+    })
     @PostMapping("/movimentacao")
-    public ResponseEntity<String> registrarMovimentacao(@RequestBody MovimentacaoDTO dto) {
-
-
+    public ResponseEntity<String> registrarMovimentacao(@Valid @RequestBody MovimentacaoDTO dto) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            throw new RuntimeException("Erro: Usuário não autenticado no sistema!");
+            throw new RuntimeException("Usuário não autenticado");
         }
 
-        String login = authentication.getName();
-        var userDetails = usuarioRepo.findByLogin(login);
-        if (userDetails == null) {
-            throw new RuntimeException("Usuário não encontrado no banco de dados!");
+        Usuario gerente = (Usuario) usuarioRepo.findByLogin(authentication.getName());
+        if (gerente == null) {
+            throw new RuntimeException("Usuário não encontrado");
         }
-        Usuario gerente = (Usuario) userDetails;
-
 
         Produto produto = produtoRepo.findById(dto.produtoId())
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado!"));
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         Unidade unidade = unidadeRepo.findById(dto.unidadeId())
-                .orElseThrow(() -> new RuntimeException("Unidade não encontrada!"));
-
+                .orElseThrow(() -> new RuntimeException("Unidade não encontrada"));
 
         estoqueServico.registrarMovimentacao(produto, unidade, gerente, dto.quantidade(), dto.tipo());
 

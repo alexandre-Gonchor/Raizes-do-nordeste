@@ -4,14 +4,14 @@ name: Raizes do nordeste
 meta:
   id: wrk_d1461426763a41dbaabfb25548d7d4e7
   created: 1775168111263
-  modified: 1775168111263
+  modified: 1778448740144
   description: ""
 collection:
   - name: Raízes do Nordeste - Coleção de testes
     meta:
       id: fld_1bc8b526df614f9aa14a58c945376273
       created: 1777235628052
-      modified: 1777235714128
+      modified: 1778448740144
       sortKey: -1777235626883
       description: Coleção unificada contendo funcionalidades de negócio e testes de
         resiliência/erros, documentada com cenários de teste detalhados.
@@ -20,7 +20,7 @@ collection:
         meta:
           id: fld_afbc11eeb662450f8fe26fe43023e191
           created: 1777235628057
-          modified: 1777235628057
+          modified: 1777239665329
           sortKey: -1777235626882
           description: ""
         children:
@@ -29,7 +29,7 @@ collection:
             meta:
               id: req_2aeb2dd44ec34bc88ab439dc3735b423
               created: 1777235628091
-              modified: 1777235628091
+              modified: 1778448742329
               isPrivate: false
               description: |-
                 **Cenário:** Cadastro de usuário válido
@@ -107,11 +107,11 @@ collection:
                 store: true
               rebuildPath: true
           - url: http://localhost:8080/auth/login
-            name: "E01 - ERRO: Login Inválido (403)"
+            name: "E01 - ERRO: Login Inválido (401)"
             meta:
               id: req_fc917eb7a92a4d719d117d75d2329072
               created: 1777235628107
-              modified: 1777235628107
+              modified: 1778448742330
               isPrivate: false
               description: |-
                 **Cenário:** Tentativa de login com credenciais incorretas
@@ -120,9 +120,9 @@ collection:
 
                 **Pré-condição:** Nenhuma
 
-                **Entrada:** Senha incorreta
+                **Entrada:** Senha incorreta para usuário existente
 
-                **Esperado:** 403 Forbidden (Acesso Negado)
+                **Esperado:** 401 Unauthorized — Spring Security rejeita credenciais inválidas via BadCredentialsException. O evento é registrado na tabela de auditoria (LOGIN_FALHA).
 
                 **Evidência:** E01 - Segurança de Login
               sortKey: -1777235626879
@@ -145,11 +145,58 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
+          - url: http://localhost:8080/auth/register
+            name: "E07 - ERRO: Cadastro Sem ROLE_ADMIN (403)"
+            meta:
+              id: req_a1b2c3d4e5f64a5b9c8d7e6f5a4b3c2d
+              created: 1778500000001
+              modified: 1778500000001
+              isPrivate: false
+              description: |-
+                **Cenário:** Usuário autenticado sem perfil ADMIN tenta cadastrar outro usuário
+
+                **Endpoint:** POST /auth/register
+
+                **Pré-condição:** Token JWT de usuário com role CLIENTE ou GERENTE (não ADMIN)
+
+                **Entrada:** Dados válidos de novo usuário + token sem ROLE_ADMIN
+
+                **Esperado:** 403 Forbidden — Spring Security bloqueia via hasAuthority("ROLE_ADMIN"). O endpoint de registro é uma ação sensível restrita ao administrador.
+
+                **Regra de negócio:** Apenas ADMIN pode criar novos acessos ao sistema.
+
+                **Evidência:** E07 - Controle de Autorização por Role
+              sortKey: -1777235626879a
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "login": "novo@teste.com",
+                  "senha": "123456",
+                  "role": "ADMIN"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
       - name: 2. Unidades e Catálogo
         meta:
           id: fld_b9174e9ffcd641049e821795b71ba382
           created: 1777235628112
-          modified: 1777235628112
+          modified: 1777239666459
           sortKey: -1777235626878
           description: ""
         children:
@@ -233,27 +280,29 @@ collection:
         meta:
           id: fld_b87afa0555ee401c8c4a98b5c2a5d8be
           created: 1777235628118
-          modified: 1777235628118
+          modified: 1777239667632
           sortKey: -1777235626875
           description: ""
         children:
-          - url: http://localhost:8080/estoque/entrada
+          - url: http://localhost:8080/estoque/movimentacao
             name: T05 - Entrada de Mercadoria (200)
             meta:
               id: req_43c568aecd404dd59c75985fbe9e8f08
               created: 1777235628120
-              modified: 1777235628120
+              modified: 1778500000002
               isPrivate: false
               description: |-
                 **Cenário:** Registrar entrada de produtos pelo gerente
 
-                **Endpoint:** POST /estoque/entrada
+                **Endpoint:** POST /estoque/movimentacao
 
-                **Pré-condição:** Usuário logado e vinculado a uma unidade
+                **Pré-condição:** Usuário logado, produto e unidade existentes
 
-                **Esperado:** 200 OK confirmando a entrada
+                **Entrada:** produtoId, unidadeId, quantidade, tipo=ENTRADA
 
-                **Evidência:** T05 - Reabastecimento
+                **Esperado:** 200 OK confirmando a movimentação registrada no histórico
+
+                **Evidência:** T05 - Reabastecimento de Estoque
               sortKey: -1777235626874
             method: POST
             body:
@@ -261,7 +310,9 @@ collection:
               text: |-
                 {
                   "produtoId": 1,
-                  "quantidade": 50
+                  "unidadeId": 1,
+                  "quantidade": 50,
+                  "tipo": "ENTRADA"
                 }
             headers:
               - name: Content-Type
@@ -280,11 +331,11 @@ collection:
                 store: true
               rebuildPath: true
           - url: http://localhost:8080/estoque/movimentacao
-            name: "E02 - ERRO: Estoque Insuficiente (500)"
+            name: "E02 - ERRO: Estoque Insuficiente (422)"
             meta:
               id: req_3f3854247bae450a80056c02747cec8d
               created: 1777235628122
-              modified: 1777235628122
+              modified: 1778500000003
               isPrivate: false
               description: >-
                 **Cenário:** Tentar retirar mais itens do que o disponível no
@@ -294,11 +345,16 @@ collection:
                 **Endpoint:** POST /estoque/movimentacao
 
 
-                **Pré-condição:** Quantidade solicitada > Saldo atual
+                **Pré-condição:** Quantidade solicitada > saldo atual em estoque
 
 
-                **Esperado:** 500 Internal Server Error (Lançamento de
-                Exception)
+                **Entrada:** tipo=SAIDA com quantidade 999999 (impossível de satisfazer)
+
+
+                **Esperado:** 422 Unprocessable Entity — EstoqueServico lança IllegalStateException("Estoque insuficiente: disponível=X, solicitado=999999"). O handler global converte para 422 com corpo padronizado.
+
+
+                **Regra de negócio:** Saída de estoque é bloqueada quando saldo insuficiente.
 
 
                 **Evidência:** E02 - Validação de limite de estoque
@@ -333,7 +389,7 @@ collection:
         meta:
           id: fld_a158528f7e344259b449333ca0aa52f8
           created: 1777235628123
-          modified: 1777235628123
+          modified: 1777239670093
           sortKey: -1777235626872
           description: ""
         children:
@@ -385,7 +441,7 @@ collection:
         meta:
           id: fld_e8c1639e15014d7d82b880d3561d034f
           created: 1777235628128
-          modified: 1777235628128
+          modified: 1778500000004
           sortKey: -1777235626870
           description: ""
         children:
@@ -445,6 +501,112 @@ collection:
                 store: true
               rebuildPath: true
           - url: http://localhost:8080/pedidos
+            name: T13 - Criar Pedido via TOTEM — Multicanalidade (201)
+            meta:
+              id: req_b1c2d3e4f5a64b5c9d8e7f6a5b4c3d2e
+              created: 1778500000005
+              modified: 1778500000005
+              isPrivate: false
+              description: |-
+                **Cenário:** Pedido originado no canal TOTEM de autoatendimento
+
+                **Endpoint:** POST /pedidos
+
+                **Pré-condição:** Produto com estoque, cliente existente, funcionário vinculado a unidade
+
+                **Entrada:** canalPedido=TOTEM
+
+                **Esperado:** 201 Created com campo canalPedido="TOTEM" persistido no banco. O canal é rastreável via GET /pedidos?canal=TOTEM.
+
+                **Regra de negócio (multicanalidade):** O campo canalPedido é obrigatório e registrado no pedido para rastreabilidade operacional entre canais (APP, WEB, TOTEM, BALCAO, PICKUP).
+
+                **Evidência:** T13 - Multicanalidade TOTEM
+              sortKey: -1777235626868b
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "itens": [
+                    {
+                      "produtoID": 1,
+                      "quantidade": 1
+                    }
+                  ],
+                  "canalPedido": "TOTEM",
+                  "ClienteId": 1,
+                  "usarPontos": false
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos
+            name: T14 - Criar Pedido Usando Pontos de Fidelidade (201)
+            meta:
+              id: req_c2d3e4f5a6b74c5d9e8f7a6b5c4d3e2f
+              created: 1778500000006
+              modified: 1778500000006
+              isPrivate: false
+              description: |-
+                **Cenário:** Cliente resgata saldo de pontos acumulados como desconto no pedido
+
+                **Endpoint:** POST /pedidos
+
+                **Pré-condição:** Cliente com pontosAcumulados > 0, produto com estoque
+
+                **Entrada:** usarPontos=true
+
+                **Esperado:** 201 Created com valorTotal descontado proporcionalmente ao saldo de pontos (taxa: 10 pontos = R$ 1,00). Após o resgate, pontosAcumulados do cliente é zerado.
+
+                **Regra de negócio:** Desconto de cupom é aplicado ANTES do resgate de pontos. Pontos novos são acumulados sobre o valor FINAL pago.
+
+                **Evidência:** T14 - Resgate de Fidelidade
+              sortKey: -1777235626868c
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "itens": [
+                    {
+                      "produtoID": 1,
+                      "quantidade": 1
+                    }
+                  ],
+                  "canalPedido": "WEB",
+                  "ClienteId": 1,
+                  "usarPontos": true
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos
             name: T08 - Listar Pedidos por Canal (200)
             meta:
               id: req_b8e501ef01674bb7914c8d2295953b39
@@ -467,6 +629,42 @@ collection:
               - name: canal
                 value: APP
                 disabled: false
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos/1/pagar
+            name: T12 - Processar Pagamento Mock (200)
+            meta:
+              id: req_d3e4f5a6b7c84d5e9f8a7b6c5d4e3f2a
+              created: 1778500000007
+              modified: 1778500000007
+              isPrivate: false
+              description: |-
+                **Cenário:** Simulação de comunicação com gateway de pagamento externo
+
+                **Endpoint:** PUT /pedidos/{id}/pagar
+
+                **Pré-condição:** Pedido existir com status AGUARDANDO_PAGAMENTO
+
+                **Esperado:** 200 OK com status atualizado para PAGO (90% de probabilidade) ou PAGAMENTO_RECUSADO (10% de probabilidade). A decisão é registrada na auditoria (PAGAMENTO_PROCESSADO).
+
+                **Regra de negócio (mock):** Representa o fluxo de envio ao gateway e retorno do status financeiro. Em produção, este endpoint seria substituído por integração real (ex: Stone/Cielo) com webhook de confirmação.
+
+                **Tolerância a falha:** O sistema aceita PAGAMENTO_RECUSADO sem corromper o pedido — cliente pode tentar novamente.
+
+                **Evidência:** T12 - Pagamento Mock
+              sortKey: -1777235626867b
+            method: PUT
             authentication:
               type: bearer
               disabled: false
@@ -527,24 +725,26 @@ collection:
                 store: true
               rebuildPath: true
           - url: http://localhost:8080/pedidos
-            name: "E03 - ERRO: Pedido com Cupom Falso (500/400)"
+            name: "E03 - ERRO: Pedido com Cupom Inexistente (404)"
             meta:
               id: req_911db27d9a5e4e43a93821b96bd6a0d3
               created: 1777235628136
-              modified: 1777235628136
+              modified: 1778500000008
               isPrivate: false
               description: >-
-                **Cenário:** Cliente tenta forçar um cupom que não existe
+                **Cenário:** Cliente tenta usar cupom que não existe no banco
 
 
                 **Endpoint:** POST /pedidos
 
 
-                **Pré-condição:** Nenhuma
+                **Pré-condição:** Código de cupom não cadastrado
 
 
-                **Esperado:** Erro gerado pela RuntimeException 'Cupom inválido
-                ou expirado!'
+                **Entrada:** cupom="CUPOM_INVENTADO"
+
+
+                **Esperado:** 404 Not Found — PedidoServico lança RuntimeException("Cupom inválido ou expirado!") capturada pelo handler global como 404.
 
 
                 **Evidência:** E03 - Validação de Promoção
@@ -611,11 +811,139 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
+          - url: http://localhost:8080/pedidos/1/status
+            name: "E08 - ERRO: Alterar Status de Pedido Finalizado (422)"
+            meta:
+              id: req_e4f5a6b7c8d94e5f9a8b7c6d5e4f3a2b
+              created: 1778500000009
+              modified: 1778500000009
+              isPrivate: false
+              description: |-
+                **Cenário:** Tentativa de alterar o status de um pedido já finalizado (ENTREGUE ou CANCELADO)
+
+                **Endpoint:** PUT /pedidos/{id}/status
+
+                **Pré-condição:** Pedido com status ENTREGUE ou CANCELADO (executar T09 avançando até ENTREGUE antes deste teste)
+
+                **Entrada:** Qualquer novo status (ex: EM_PREPARO)
+
+                **Esperado:** 422 Unprocessable Entity — PedidoServico lança IllegalStateException("Alteração não é possível em pedido já finalizado"). Handler global converte para 422.
+
+                **Regra de negócio:** Pedidos ENTREGUE e CANCELADO são imutáveis — proteção contra alteração pós-entrega.
+
+                **Evidência:** E08 - Imutabilidade de Pedido Finalizado
+              sortKey: -1777235626864b
+            method: PUT
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "status": "EM_PREPARO"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos
+            name: "E09 - ERRO: Campo Obrigatório Ausente — canalPedido (400)"
+            meta:
+              id: req_f5a6b7c8d9e04f5a9b8c7d6e5f4a3b2c
+              created: 1778500000010
+              modified: 1778500000010
+              isPrivate: false
+              description: |-
+                **Cenário:** Criação de pedido sem informar o canal de origem
+
+                **Endpoint:** POST /pedidos
+
+                **Pré-condição:** Nenhuma
+
+                **Entrada:** Body sem o campo canalPedido (campo obrigatório @NotBlank)
+
+                **Esperado:** 400 Bad Request — Bean Validation (@Valid) detecta ausência do canalPedido e retorna mensagem: "'canalPedido': Canal do pedido é obrigatório (APP, WEB, TOTEM, BALCAO, PICKUP)".
+
+                **Regra de negócio (multicanalidade):** O canal é obrigatório para rastreabilidade operacional — pedido sem canal não pode ser criado.
+
+                **Evidência:** E09 - Validação de Campo Obrigatório
+              sortKey: -1777235626864c
+            method: POST
+            body:
+              mimeType: text/plain
+              text: |-
+                {
+                  "itens": [
+                    {
+                      "produtoID": 1,
+                      "quantidade": 1
+                    }
+                  ],
+                  "ClienteId": 1,
+                  "usarPontos": false
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{token}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/pedidos
+            name: "E06 - ERRO: Acesso Sem Token (401)"
+            meta:
+              id: req_a6b7c8d9e0f14a5b9c8d7e6f5a4b3c2d
+              created: 1778500000011
+              modified: 1778500000011
+              isPrivate: false
+              description: |-
+                **Cenário:** Requisição para rota protegida sem enviar o Bearer Token
+
+                **Endpoint:** GET /pedidos (sem Authorization header)
+
+                **Pré-condição:** Nenhuma
+
+                **Entrada:** Requisição sem token JWT
+
+                **Esperado:** 401 Unauthorized — SecurityFilter não encontra token válido, Spring Security bloqueia antes de atingir o controller.
+
+                **Regra de segurança:** Endpoints protegidos exigem autenticação JWT. Ausência de token = não autenticado = 401.
+
+                **Evidência:** E06 - Proteção de Rota Sem Autenticação
+              sortKey: -1777235626864d
+            method: GET
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
       - name: 6. Analytics e Relatórios
         meta:
           id: fld_e27c5493ef9c43d2abb3fe2ccdd162bf
           created: 1777235628141
-          modified: 1777235628141
+          modified: 1777236588186
           sortKey: -1777235626864
           description: ""
         children:
@@ -687,11 +1015,11 @@ collection:
                 store: true
               rebuildPath: true
           - url: http://localhost:8080/relatorios/vendas/1
-            name: "E05 - ERRO: Relatório Sem Token (403)"
+            name: "E05 - ERRO: Relatório Sem Token (401)"
             meta:
               id: req_7a011e7cca244145a146724e9a8e6be6
               created: 1777235628167
-              modified: 1777235628167
+              modified: 1778500000012
               isPrivate: false
               description: |-
                 **Cenário:** Acesso anônimo a relatórios confidenciais
@@ -700,7 +1028,7 @@ collection:
 
                 **Pré-condição:** Não enviar o Bearer Token
 
-                **Esperado:** 403 Forbidden interceptado pelo Spring Security
+                **Esperado:** 401 Unauthorized — Spring Security bloqueia a requisição sem token antes de atingir o controller. Relatórios financeiros são dados sensíveis protegidos por autenticação.
 
                 **Evidência:** E05 - Proteção de Dados Sensíveis
               sortKey: -1777235626861

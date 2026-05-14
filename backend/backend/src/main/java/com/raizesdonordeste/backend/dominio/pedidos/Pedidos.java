@@ -3,6 +3,7 @@ package com.raizesdonordeste.backend.dominio.pedidos;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.raizesdonordeste.backend.dominio.Cliente;
 import com.raizesdonordeste.backend.dominio.Enums.Canal_Pedidos;
+import com.raizesdonordeste.backend.dominio.Enums.StatusPedido;
 import com.raizesdonordeste.backend.dominio.Unidade;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -24,9 +25,9 @@ public class Pedidos {
     @Column(name = "canal_pedido", nullable=false)
     private Canal_Pedidos canalPedido;
 
-    //aguardo de pagamentos, em preparo, pronto
-    @Column (nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusPedido status;
 
     @Column(name = "Valor_total")
     private BigDecimal valorTotal;

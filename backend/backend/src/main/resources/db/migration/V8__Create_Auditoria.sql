@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS auditoria (
+    id BIGSERIAL PRIMARY KEY,
+    acao VARCHAR(50) NOT NULL,
+    usuario VARCHAR(100) NOT NULL,
+    detalhe VARCHAR(500),
+    data_hora TIMESTAMP NOT NULL
+);

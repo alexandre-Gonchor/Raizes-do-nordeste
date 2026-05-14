@@ -80,29 +80,36 @@ mvn spring-boot:run
 
 ```
 
-🗄️ Como criar o banco de dados no PostgreSQL
+### 4. Configuração do Banco de Dados
 
-Para que a aplicação funcione, o banco de dados deve existir antes do primeiro "Run". Escolha uma das opções abaixo:
-Opção 1: Via Linha de Comando (psql ou Terminal)
+O banco de dados deve existir antes do primeiro "Run". As tabelas são criadas automaticamente pelo **Flyway** (10 migrações SQL versionadas).
 
-Abra o terminal do seu PostgreSQL e execute o comando abaixo:
-SQL
+**Opção 1: Via Linha de Comando (psql)**
 
-CREATE DATABASE raizes_nordeste_db;
+```sql
+CREATE DATABASE raizes_nordeste;
+```
 
-Opção 2: Via Interface Gráfica (pgAdmin ou DBeaver)
+**Opção 2: Via Interface Gráfica (pgAdmin ou DBeaver)**
 
-    Conecte-se ao seu servidor local do PostgreSQL.
+1. Conecte-se ao servidor local do PostgreSQL.
+2. Clique com o botão direito em **Databases**.
+3. Selecione **Create > Database...**.
+4. No campo "Database", digite exatamente: `raizes_nordeste`.
+5. Clique em **Save**.
 
-    Clique com o botão direito em Databases (Bancos de Dados).
+> **Importante:** Não é necessário criar tabelas manualmente. O Flyway executa automaticamente as migrações em `src/main/resources/db/migration/` na primeira inicialização, criando toda a estrutura (tabelas, chaves primárias, foreign keys e constraints).
 
-    Selecione Create > Database....
+### 5. Variáveis de Configuração
 
-    No campo "Database", digite exatamente: raizes_nordeste_db.
+As credenciais ficam em `src/main/resources/application.properties`. Para ambientes diferentes, edite os valores abaixo:
 
-    Clique em Save (Salvar).
-
-    Importante: Após criar o banco, não é necessário criar tabelas. O Hibernate (JPA) lerá as classes Java e gerará toda a estrutura de tabelas, chaves primárias e relacionamentos automaticamente assim que você iniciar a API pela primeira vez.
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/raizes_nordeste
+spring.datasource.username=postgres
+spring.datasource.password=1234
+api.security.token.secret=minha-chave-123
+```
 
 
 ## 🧪 Testando a API
@@ -132,15 +139,15 @@ Este fluxo simula a jornada completa do cliente no Totem de autoatendimento, des
 1. **Criar Pedido (`POST /pedidos`):** * Valida a existência dos itens e se há estoque disponível.
     * Aplica regras de negócio matemáticas (validação de Cupons Promocionais e uso de Pontos de Fidelidade).
     * Realiza a baixa (Saída) imediata no estoque logístico da unidade.
-2. **Registro de Pagamento Mock (`POST /pedidos/{id}/pagamento`):** * Simula a comunicação com um Gateway de Pagamento (ex: Stone/Cielo).
-    * Possui uma lógica randômica para aprovar ou recusar a transação, alterando o status financeiro do pedido.
+2. **Registro de Pagamento Mock (`PUT /pedidos/{id}/pagar`):** * Simula a comunicação com um Gateway de Pagamento (ex: Stone/Cielo).
+    * Possui uma lógica randômica para aprovar (90%) ou recusar (10%) a transação, alterando o status financeiro do pedido para `PAGO` ou `PAGAMENTO_RECUSADO`.
 3. **Atualização de Status Logístico (`PUT /pedidos/{id}/status`):** * Permite que o gerente da filial avance a esteira de produção (de `PAGO` para `EM_PREPARO` e, finalmente, `ENTREGUE`).
 
 ### 📦 Fluxo B: Estoque Distribuído por Unidade (Multi-Tenant)
 Este fluxo garante o isolamento físico e lógico das mercadorias entre a Matriz e as Filiais.
 
 1. **Cadastrar/Consultar Produto (`GET /cardapio/vitrine/{unidadeId}`):** * Realiza uma busca inteligente (Join) que só exibe para o cliente os produtos que possuem saldo positivo na filial em que ele se encontra.
-2. **Movimentar Estoque (`POST /estoque/entrada`):** * Permite o reabastecimento logístico. O gerente insere as mercadorias que chegaram do fornecedor diretamente no saldo da sua unidade correspondente.
+2. **Movimentar Estoque (`POST /estoque/movimentacao`):** * Permite o reabastecimento logístico (tipo `ENTRADA`) ou saída manual (tipo `SAIDA`). O gerente registra as mercadorias que chegaram do fornecedor diretamente no saldo da sua unidade correspondente.
 3. **Consultar Saldo e Auditoria (`GET /relatorios/estoque/{unidadeId}`):** * Gera um relatório completo de todas as movimentações de Entrada (reabastecimento) e Saída (vendas) ocorridas na unidade, garantindo rastreabilidade (Auditoria).
 
 ---
@@ -151,23 +158,38 @@ Este fluxo garante o isolamento físico e lógico das mercadorias entre a Matriz
 
 A documentação interativa e completa está disponível via **Swagger UI** acessando `http://localhost:8080/swagger-ui.html` enquanto a aplicação estiver rodando.
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Descrição | Auth |
 | :--- | :--- | :--- | :---: |
-| `POST` | `/auth/register` | Cadastra um novo usuário/cliente no sistema (com aceite LGPD). | ❌ |
-| `POST` | `/auth/login` | Valida as credenciais e retorna o Token JWT de acesso. | ❌ |
-| `POST` | `/unidades` | Cadastra uma nova unidade física (Matriz ou Filiais). | ✅ |
-| `GET` | `/unidades` | Lista todas as unidades cadastradas no sistema. | ✅ |
-| `GET` | `/unidades/{id}` | Retorna os detalhes de uma unidade específica. | ✅ |
-| `GET` | `/cardapio/vitrine/{unidadeId}` | Lista produtos disponíveis (estoque > 0) para os clientes. | ❌ |
-| `POST` | `/estoque/entrada` | Registra administrativamente o reabastecimento de produtos. | ✅ |
-| `POST` | `/promocoes` | Cria uma nova campanha/cupom de desconto no sistema. | ✅ |
-| `POST` | `/pedidos` | Cria um pedido, aplica descontos matemáticos e dá baixa no estoque. | ✅ |
-| `POST` | `/pedidos/{id}/pagamento` | Processa o Gateway de Pagamento Simulado (Mock). | ✅ |
-| `GET` | `/pedidos` | Lista o histórico de pedidos (suporta filtros, ex: `?canal=APP`). | ✅ |
-| `GET` | `/pedidos/{id}` | Consulta os detalhes e itens de um pedido específico. | ✅ |
-| `PUT` | `/pedidos/{id}/status` | Atualiza o status logístico do pedido (ex: `EM_PREPARO`). | ✅ |
-| `GET` | `/relatorios/estoque/{unidadeId}`| Retorna a auditoria de movimentações logísticas da filial. | ✅ |
-| `GET` | `/relatorios/vendas/{unidadeId}` | Retorna as métricas de faturamento mensal da filial. | ✅ |
+| `POST` | `/auth/register` | Cadastra novo usuário no sistema. Restrito a ROLE_ADMIN. | ✅ ADMIN |
+| `POST` | `/auth/login` | Valida credenciais e retorna Token JWT (2h de validade). | ❌ |
+| `POST` | `/unidades` | Cadastra nova unidade física (Matriz ou Filial). | ✅ |
+| `GET` | `/unidades` | Lista todas as unidades cadastradas. | ✅ |
+| `GET` | `/unidades/{id}` | Retorna detalhes de uma unidade específica. | ✅ |
+| `GET` | `/cardapio/vitrine/{unidadeId}` | Lista produtos disponíveis (estoque > 0) na unidade. Endpoint público. | ❌ |
+| `POST` | `/estoque/movimentacao` | Registra entrada ou saída de produtos em uma unidade (`tipo`: ENTRADA ou SAIDA). | ✅ |
+| `POST` | `/promocoes` | Cria nova campanha/cupom de desconto. | ✅ |
+| `POST` | `/pedidos` | Cria pedido com `canalPedido` obrigatório. Aplica cupom, pontos e dá baixa no estoque. | ✅ |
+| `PUT` | `/pedidos/{id}/pagar` | Processa pagamento simulado (mock). 90% aprovação → `PAGO`, 10% → `PAGAMENTO_RECUSADO`. | ✅ |
+| `GET` | `/pedidos` | Lista pedidos. Suporta filtro por canal: `?canal=TOTEM`. Restrito a ROLE_ADMIN. | ✅ ADMIN |
+| `PUT` | `/pedidos/{id}/status` | Avança status logístico (`EM_PREPARO` → `PRONTO` → `ENTREGUE`). Restrito a ROLE_ADMIN. | ✅ ADMIN |
+| `GET` | `/relatorios/estoque/{unidadeId}` | Auditoria de movimentações logísticas da filial. | ✅ ADMIN |
+| `GET` | `/relatorios/vendas/{unidadeId}` | Métricas de faturamento mensal (`?ano=2026&mes=4`). | ✅ ADMIN |
 
-> **Nota sobre Autenticação (✅):** Endpoints marcados como protegidos exigem o envio do token no Header da requisição: `Authorization: Bearer <seu_token_aqui>`.
+> **Autenticação (✅):** Endpoints protegidos exigem `Authorization: Bearer <token>` no header.
+>
+> **ADMIN:** Restrito a usuários com `role: ADMIN`. Usuário admin inicial criado automaticamente na primeira inicialização (ver `AdminSeedConfig`).
+
+### Canais Disponíveis (Multicanalidade)
+
+O campo `canalPedido` é **obrigatório** na criação de pedidos. Valores aceitos:
+
+| Canal | Descrição |
+| :--- | :--- |
+| `APP` | Aplicativo móvel |
+| `WEB` | Site / plataforma web |
+| `TOTEM` | Totem de autoatendimento |
+| `BALCAO` | Atendimento presencial no balcão |
+| `PICKUP` | Retirada agendada |
+
+Filtro por canal: `GET /pedidos?canal=TOTEM`
 

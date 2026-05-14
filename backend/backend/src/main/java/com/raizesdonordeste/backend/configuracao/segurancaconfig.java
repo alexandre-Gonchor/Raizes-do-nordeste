@@ -29,7 +29,7 @@ public class segurancaconfig {
 
                         .requestMatchers(HttpMethod.GET, "/cardapio/vitrine/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
@@ -37,6 +37,8 @@ public class segurancaconfig {
                         .requestMatchers(HttpMethod.POST, "/produtos").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/pedidos").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/pedidos").authenticated()
+                        // Alteração de status é ação sensível — restrita a administradores
+                        .requestMatchers(HttpMethod.PUT, "/pedidos/*/status").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/relatorios/**").hasAuthority("ROLE_ADMIN")
 
 

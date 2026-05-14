@@ -44,7 +44,8 @@ public class EstoqueServico {
             estoqueAtual.setQuantidadeAtual(estoqueAtual.getQuantidadeAtual() + quantidade);
         } else if (tipo == TipoMovimentacao.SAIDA) {
             if (estoqueAtual.getQuantidadeAtual() < quantidade) {
-                throw new RuntimeException("Estoque insuficiente para esta saída");
+                // IllegalStateException → 422 via handler global
+                throw new IllegalStateException("Estoque insuficiente: disponível=" + estoqueAtual.getQuantidadeAtual() + ", solicitado=" + quantidade);
             }
             estoqueAtual.setQuantidadeAtual(estoqueAtual.getQuantidadeAtual() - quantidade);
         }
