@@ -166,7 +166,7 @@ collection:
                 **Regra de negócio:** Apenas ADMIN pode criar novos acessos ao sistema.
 
                 **Evidência:** E07 - Controle de Autorização por Role
-              sortKey: -1777235626879a
+              sortKey: -1777235626879
             method: POST
             body:
               mimeType: text/plain
@@ -521,7 +521,7 @@ collection:
                 **Regra de negócio (multicanalidade):** O campo canalPedido é obrigatório e registrado no pedido para rastreabilidade operacional entre canais (APP, WEB, TOTEM, BALCAO, PICKUP).
 
                 **Evidência:** T13 - Multicanalidade TOTEM
-              sortKey: -1777235626868b
+              sortKey: -1777235626870
             method: POST
             body:
               mimeType: text/plain
@@ -574,7 +574,7 @@ collection:
                 **Regra de negócio:** Desconto de cupom é aplicado ANTES do resgate de pontos. Pontos novos são acumulados sobre o valor FINAL pago.
 
                 **Evidência:** T14 - Resgate de Fidelidade
-              sortKey: -1777235626868c
+              sortKey: -1777235626871
             method: POST
             body:
               mimeType: text/plain
@@ -663,7 +663,7 @@ collection:
                 **Tolerância a falha:** O sistema aceita PAGAMENTO_RECUSADO sem corromper o pedido — cliente pode tentar novamente.
 
                 **Evidência:** T12 - Pagamento Mock
-              sortKey: -1777235626867b
+              sortKey: -1777235626867
             method: PUT
             authentication:
               type: bearer
@@ -832,7 +832,7 @@ collection:
                 **Regra de negócio:** Pedidos ENTREGUE e CANCELADO são imutáveis — proteção contra alteração pós-entrega.
 
                 **Evidência:** E08 - Imutabilidade de Pedido Finalizado
-              sortKey: -1777235626864b
+              sortKey: -1777235626864
             method: PUT
             body:
               mimeType: text/plain
@@ -877,7 +877,7 @@ collection:
                 **Regra de negócio (multicanalidade):** O canal é obrigatório para rastreabilidade operacional — pedido sem canal não pode ser criado.
 
                 **Evidência:** E09 - Validação de Campo Obrigatório
-              sortKey: -1777235626864c
+              sortKey: -1777235626864
             method: POST
             body:
               mimeType: text/plain
@@ -929,7 +929,7 @@ collection:
                 **Regra de segurança:** Endpoints protegidos exigem autenticação JWT. Ausência de token = não autenticado = 401.
 
                 **Evidência:** E06 - Proteção de Rota Sem Autenticação
-              sortKey: -1777235626864d
+              sortKey: -1777235626864
             method: GET
             settings:
               renderRequestBody: true
